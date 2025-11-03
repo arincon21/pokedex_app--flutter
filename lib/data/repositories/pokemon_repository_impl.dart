@@ -16,6 +16,15 @@ class PokemonRepositoryImpl implements PokemonRepository {
       types: p.types,
       imageUrl: p.imageUrl,
       isFavorite: p.isFavorite,
+      description: p.description,
+      weight: p.weight,
+      height: p.height,
+      abilities: p.abilities,
+      category: p.category,
+      maleRatio: p.maleRatio,
+      femaleRatio: p.femaleRatio,
+      weaknesses: p.weaknesses,
+      stats: p.stats,
     )).toList();
   }
 
@@ -29,6 +38,15 @@ class PokemonRepositoryImpl implements PokemonRepository {
         types: pokemon.types,
         imageUrl: pokemon.imageUrl,
         isFavorite: pokemon.isFavorite,
+        description: pokemon.description,
+        weight: pokemon.weight,
+        height: pokemon.height,
+        abilities: pokemon.abilities,
+        category: pokemon.category,
+        maleRatio: pokemon.maleRatio,
+        femaleRatio: pokemon.femaleRatio,
+        weaknesses: pokemon.weaknesses,
+        stats: pokemon.stats,
       );
     } catch (e) {
       throw Exception('Pokemon not found');

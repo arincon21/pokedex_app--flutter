@@ -37,7 +37,20 @@ class PokemonRemoteDataSourceImpl implements PokemonRemoteDataSource {
       final response = await dio.get(
         ApiConstants.getPokemonDetailsEndpoint(name.toLowerCase())
       );
-      return PokemonModel.fromDetailJson(response.data);
+      
+      // Fetch species data for additional information
+      Map<String, dynamic>? speciesData;
+      try {
+        final speciesResponse = await dio.get(
+          ApiConstants.getPokemonSpeciesEndpoint(response.data['id'].toString())
+        );
+        speciesData = speciesResponse.data;
+      } catch (e) {
+        // If species data fails, continue without it
+        print('Warning: Could not fetch species data: $e');
+      }
+      
+      return PokemonModel.fromDetailJson(response.data, speciesData: speciesData);
     } on DioException catch (e) {
       throw ServerException('Network error: ${e.message}');
     } catch (e) {

@@ -5,6 +5,7 @@ import '../../domain/entities/pokemon.dart';
 import '../widgets/pokemon_card.dart';
 import '../widgets/pokemon_search_bar.dart';
 import '../widgets/bottom_nav_bar.dart';
+import 'pokemon_detail_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -111,6 +112,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           isFavorite: pokemon.isFavorite,
                           onFavoritePressed: () {
                             // Implementar la lógica de favoritos
+                          },
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PokemonDetailScreen(pokemon: pokemon),
+                              ),
+                            );
                           },
                         ),
                       );

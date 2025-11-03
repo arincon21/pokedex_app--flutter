@@ -7,6 +7,7 @@ class PokemonCard extends StatelessWidget {
   final String imageUrl;
   final bool isFavorite;
   final Function()? onFavoritePressed;
+  final Function()? onTap;
 
   const PokemonCard({
     super.key,
@@ -16,15 +17,44 @@ class PokemonCard extends StatelessWidget {
     required this.imageUrl,
     this.isFavorite = false,
     this.onFavoritePressed,
+    this.onTap,
   });
+
+  String _typeToEnglish(String spanishType) {
+    switch (spanishType.toLowerCase()) {
+      case 'acero': return 'steel';
+      case 'agua': return 'water';
+      case 'bicho': return 'bug';
+      case 'dragón': return 'dragon';
+      case 'dragon': return 'dragon';
+      case 'electrico': return 'electric';
+      case 'fantasma': return 'ghost';
+      case 'fuego': return 'fire';
+      case 'hada': return 'fairy';
+      case 'hielo': return 'ice';
+      case 'lucha': return 'fighting';
+      case 'normal': return 'normal';
+      case 'planta': return 'grass';
+      case 'psíquico': return 'psychic';
+      case 'psiquico': return 'psychic';
+      case 'roca': return 'rock';
+      case 'siniestro': return 'dark';
+      case 'tierra': return 'ground';
+      case 'veneno': return 'poison';
+      case 'volador': return 'flying';
+      default: return spanishType.toLowerCase();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final bgImagePath = types.isNotEmpty
-        ? 'assets/images/bg-types/Type=${types.first.toLowerCase()}.png'
+        ? 'assets/images/bg-types/Type=${_typeToEnglish(types.first)}.png'
         : null;
 
-    return Card(
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       clipBehavior: Clip.hardEdge,
@@ -108,6 +138,7 @@ class PokemonCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
