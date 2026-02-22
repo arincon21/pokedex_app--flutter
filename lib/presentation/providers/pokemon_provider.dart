@@ -7,14 +7,15 @@ import '../../data/repositories/pokemon_repository_impl.dart';
 
 final dioProvider = Provider((ref) {
   final dio = Dio(BaseOptions(
-    connectTimeout: const Duration(seconds: 5),
-    receiveTimeout: const Duration(seconds: 3),
+    connectTimeout: const Duration(seconds: 15),
+    receiveTimeout: const Duration(seconds: 10),
     responseType: ResponseType.json,
   ));
   
+  // Reduce logging for better performance
   dio.interceptors.add(LogInterceptor(
-    requestBody: true,
-    responseBody: true,
+    requestBody: false,
+    responseBody: false,
   ));
   
   return dio;

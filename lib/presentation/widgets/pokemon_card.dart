@@ -25,7 +25,6 @@ class PokemonCard extends StatelessWidget {
       case 'acero': return 'steel';
       case 'agua': return 'water';
       case 'bicho': return 'bug';
-      case 'dragón': return 'dragon';
       case 'dragon': return 'dragon';
       case 'electrico': return 'electric';
       case 'fantasma': return 'ghost';

@@ -164,7 +164,7 @@ class PokemonModel {
       'rock': 'Roca',
       'ghost': 'Fantasma',
       'ice': 'Hielo',
-      'dragon': 'Dragón',
+      'dragon': 'Dragon',
       'dark': 'Siniestro',
       'steel': 'Acero',
       'flying': 'Volador',

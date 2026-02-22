@@ -38,7 +38,7 @@ class PokemonDetailScreen extends StatelessWidget {
         return Color(0xFFB8A038);
       case 'Fantasma':
         return Color(0xFF705898);
-      case 'Dragón':
+      case 'Dragon':
         return Color(0xFF7038F8);
       case 'Siniestro':
         return Color(0xFF705848);

@@ -18,14 +18,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   int _currentIndex = 0;
   String _searchQuery = '';
-  final ScrollController _scrollController = ScrollController();
 
   final List<Pokemon> _pokemons = [];
   bool _isLoading = false;
-  bool _hasReachedEnd = false;
   String? _error;
-  int _currentPage = 1;
-  static const int _pageSize = 20;
+  static const int _maxPokemons = 1025; // Gen 1-9 approximately
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +44,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 });
               },
             ),
+            // Progress indicator
+            if (_pokemons.isNotEmpty)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: Colors.grey[100],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${_pokemons.length} / $_maxPokemons Pokémon cargados',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (_isLoading)
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                  ],
+                ),
+              ),
             Expanded(
               child: Builder(
                 builder: (context) {
@@ -88,19 +110,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   }
 
                   return ListView.builder(
-                    controller: _scrollController,
                     padding: const EdgeInsets.all(16),
-                    itemCount: filteredPokemons.length + (_isLoading ? 1 : 0),
+                    itemCount: filteredPokemons.length,
                     itemBuilder: (context, index) {
-                      if (index == filteredPokemons.length) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 32),
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      }
-
                       final pokemon = filteredPokemons[index];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 16),
@@ -145,66 +157,65 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void dispose() {
     _searchController.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
-    _loadNextPage();
+    _loadInitialData();
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      _loadNextPage();
-    }
+  Future<void> _loadInitialData() async {
+    // Cargar los primeros 100 Pokémon
+    await _loadChunk(offset: 0, limit: 100);
+    
+    // Cargar el resto en segundo plano
+    _loadRemainingPokemons();
+  }
+  
+  Future<void> _loadRemainingPokemons() async {
+    await _loadChunk(offset: 100, limit: 925);
   }
 
-  Future<void> _loadNextPage() async {
-    if (_isLoading || _hasReachedEnd) return;
+  void _addPokemons(List<Pokemon> newPokemons) {
     setState(() {
-      _isLoading = true;
-      _error = null;
+      _pokemons.addAll(newPokemons);
+      _pokemons.sort((a, b) => a.id.compareTo(b.id));
     });
+  }
 
-    try {
-      final repository = ref.read(pokemonRepositoryProvider);
-      final newPokemons = await repository.getPokemons(
-        offset: (_currentPage - 1) * _pageSize,
-        limit: _pageSize,
-      );
+  Future<void> _loadChunk({required int offset, required int limit}) async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
 
-      if (newPokemons.isEmpty) {
-        setState(() {
-          _hasReachedEnd = true;
-          _isLoading = false;
-        });
-        return;
+    Future.microtask(() async {
+      try {
+        final repository = ref.read(pokemonRepositoryProvider);
+        final newPokemons = await repository.getPokemons(
+          offset: offset,
+          limit: limit,
+        );
+        _addPokemons(newPokemons);
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _error = e.toString();
+          });
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
-
-      setState(() {
-        _currentPage++;
-        _pokemons.addAll(newPokemons);
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
+    });
   }
 
   void _retry() {
     setState(() {
       _error = null;
-      _hasReachedEnd = false;
-      _currentPage = 1;
       _pokemons.clear();
     });
-    _loadNextPage();
+    _loadInitialData();
   }
 }
